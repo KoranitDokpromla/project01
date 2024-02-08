@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Serach {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  customer_id Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId  Int
+}
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  customer_name String   @unique
+  email         String   @unique
+  address       String   @unique
+  cart          Cart[]
+  orders        Orders[]
+  serach        Serach[]
+}
+
+model Cart {
+  id          Int      @id @default(autoincrement())
+  quantity    Int      @default(1)
+  customer_id Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId  Int
+  products_id Products @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId   Int
+}
+
+model Orders {
+  id             Int             @id @default(autoincrement())
+  order_date     DateTime        @updatedAt
+  total_amount   Int
+  payment_status String
+  customer_id    Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customerId     Int
+  order_datails  Order_datails[]
+  payments       Payments[]
+}
+
+model Products {
+  id            Int             @id @default(autoincrement())
+  product_name  String
+  price         Int
+  imageURL      String
+  description   String?
+  cart          Cart[]
+  order_datails Order_datails[]
+}
+
+model Order_datails {
+  id          Int      @id @default(autoincrement())
+  quantity    Int      @default(1)
+  subtital    Int
+  order_id    Orders   @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orderId     Int
+  products_id Products @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId   Int
+}
+
+model Payments {
+  id             Int      @id @default(autoincrement())
+  payment_date   DateTime @updatedAt
+  payment_amount Int
+  order_id       Orders   @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orderId        Int
+}
